@@ -1,0 +1,65 @@
+# --- Node / JS ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+*.tsbuildinfo
+.eslintcache
+
+# --- Hardhat ---
+artifacts/
+cache/
+coverage/
+coverage.json
+.nyc_output/
+typechain/
+typechain-types/
+# Ignition runtime data (keep if you want on-chain addr history)
+ignition/deployments/
+
+# --- Foundry ---
+out/
+broadcast/
+cache/          # shared name; OK to ignore
+# Keep: remappings.txt, foundry.toml, .gas-snapshot (commit these)
+
+# --- Remix odds & ends ---
+_deps/
+.deps/
+.state/
+.states/
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Editors / OS ---
+.idea/
+.vscode/
+.wake/
+.wake_cache/
+lib/
+.DS_Store
+
+# --- Optional / tool-specific ---
+# Ackee Tools for Solidity / Wake caches (uncomment if created in your repo)
+#.wake/
+#.wake_cache/
+
+# OpenZeppelin Upgrades manifest:
+# Track if you use upgrades, otherwise you can ignore.
+# .openzeppelin/
+
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
