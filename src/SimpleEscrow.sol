@@ -6,16 +6,19 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 contract SimpleEscrow is ReentrancyGuard {
     event Funded(uint256 amount);
     event Released(address payee, uint256 amount);
+    event Reclaimed(address depositor, uint256 amount);
     // E-1 Constructor args: (factory, depositor, payee, deadline, feePercent); mark as immutable where possible.
-    address immutable depositor;
+    address payable immutable depositor;
     address payable immutable payee;
     uint immutable deadline;
     uint immutable feePercent;
     bool private fundedAlready;
+    bool private releasedAlready;
+
     EscrowFactory internal factory;
 
     // E-1 Constructor args: (factory, depositor, payee, deadline, feePercent); mark as immutable where possible.
-    constructor(EscrowFactory _factory, address _depositor, address payable _payee, uint _deadline, uint _feePercent){
+    constructor(EscrowFactory _factory, address payable _depositor, address payable _payee, uint _deadline, uint _feePercent){
         factory = _factory;
         depositor = _depositor;
         payee = _payee;
@@ -25,7 +28,7 @@ contract SimpleEscrow is ReentrancyGuard {
     }
 
     // E-2 fund() is payable, can be called once by depositor. Emit Funded(amount)
-    function fund() public payable {
+    function fund() external payable nonReentrant{
         require(depositor == msg.sender, "Only depositor can call this function.");
         require(!fundedAlready, "Function can only be called once");
         fundedAlready = true;
@@ -66,7 +69,6 @@ contract SimpleEscrow is ReentrancyGuard {
     }
 
     // E-3 release(amount, sig) sends (amount – fee) to payee if sig recovers depositor from keccak256(“RELEASE”, address(this), amount). Forward the fee to the factory, emit Released(payee, amountAfterFee).
-    // Todo: still work in progress, need to finish deadline calculations
     function release(uint256 amount, bytes calldata _sig) external nonReentrant {
         // Checks
         require(fundedAlready, "The contruct is not funded yet");
@@ -80,10 +82,24 @@ contract SimpleEscrow is ReentrancyGuard {
         uint256 amountAfterFee = amount - fee;
 
         // Interactions
-        (bool success_for_payee, ) = payee.call{value: amountAfterFee}("");
-        require(success_for_payee, "payee did not get the funds");
-        (bool success_for_factory, ) = factory.feeRecipient().call{value: fee}("");
-        require(success_for_factory, "factory did not get the funds");
+        (bool success_for_payee, ) = payee.call{value: amountAfterFee}(""); require(success_for_payee, "payee did not get the funds");
+        (bool success_for_factory, ) = factory.feeRecipient().call{value: fee}(""); require(success_for_factory, "factory did not get the funds");
+        releasedAlready = true;
         emit Released(payee, amountAfterFee);
     }
+
+    // E-4 After deadline and if no release happened, reclaim() lets depositor pull all funds.
+    function reclaim() external nonReentrant{
+        require(msg.sender == depositor, "Function must be called by depositor address only.");
+        require(block.timestamp > deadline, "Not expired yet");
+        require(!releasedAlready, "Funds have been released already.");
+        (bool success_for_reclaim, ) = depositor.call{value: address(this).balance}(""); require(success_for_reclaim, "reclaim transfer failed");
+        emit Reclaimed(depositor, address(this).balance);
+    }
+
+    // E-5 Use nonReentrant on external functions that move Ether. Done
+
+    // E-6 When balance is zero, anyone may call selfdestruct(payable(factory)). Follow EIP-6780 rules. Deprecated.
+
+
 }
