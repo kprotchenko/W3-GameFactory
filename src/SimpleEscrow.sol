@@ -8,10 +8,10 @@ contract SimpleEscrow is ReentrancyGuard {
     event Released(address payee, uint256 amount);
     event Reclaimed(address depositor, uint256 amount);
     // E-1 Constructor args: (factory, depositor, payee, deadline, feePercent); mark as immutable where possible.
-    address payable immutable depositor;
-    address payable immutable payee;
-    uint immutable deadline;
-    uint immutable feePercent;
+    address payable public immutable depositor;
+    address payable public immutable payee;
+    uint immutable public deadline;
+    uint immutable public feePercent;
     bool private fundedAlready;
     bool private releasedAlready;
 
@@ -96,10 +96,12 @@ contract SimpleEscrow is ReentrancyGuard {
         (bool success_for_reclaim, ) = depositor.call{value: address(this).balance}(""); require(success_for_reclaim, "reclaim transfer failed");
         emit Reclaimed(depositor, address(this).balance);
     }
-
-    // E-5 Use nonReentrant on external functions that move Ether. Done
-
-    // E-6 When balance is zero, anyone may call selfdestruct(payable(factory)). Follow EIP-6780 rules. Deprecated.
-
-
+    
+    // E-5 Use nonReentrant on external functions that move Ether.
+    
+    // E-6 When balance is zero, anyone may call selfdestruct(payable(factory)). Follow EIP-6780 rules.
+    function finalize() external {
+        require(0 == address(this).balance, "balance is not zero");
+        selfdestruct(payable(address(factory)));
+    }
 }

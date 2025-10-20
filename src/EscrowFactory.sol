@@ -23,11 +23,11 @@ contract EscrowFactory is Ownable {
     // Returns the address of the newly deployed contract
     // F-2 deploys a new SimpleEscrow with CREATE2 and emits EscrowCreated(escrowAddress).
     function createEscrow(
-        address _depositor,
+        address payable _depositor,
         address payable _payee,
         uint _deadline,
         uint256 _salt
-    ) public {
+    ) public returns (address) {
         // This syntax is a newer way to invoke create2 without assembly, you just need to pass salt
         // https://docs.soliditylang.org/en/latest/control-structures.html#salted-contract-creations-create2
         address escrowDeploymenAddress = address(
@@ -42,6 +42,7 @@ contract EscrowFactory is Ownable {
         // Updating escrowsPerDepositorMap
         escrowsPerDepositorMap[_depositor].push(escrowDeploymenAddress);
         emit EscrowCreated(escrowDeploymenAddress);
+        return escrowDeploymenAddress;
     }
 
     // F-3 Provide predictAddress(depositor, payee, salt) that returns the same CREATE2 address without deploying.
