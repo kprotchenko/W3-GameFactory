@@ -2,12 +2,12 @@
 [profile.default]
 src  = "src"
 out  = "out"
-libs = ["node_modules", "lib"]
+libs = ["lib"]                      # drop node_modules if you won't use it
 remappings = [
-  "@openzeppelin/=node_modules/@openzeppelin/",
+  "@openzeppelin/=lib/openzeppelin-contracts/",
   "forge-std/=lib/forge-std/src/",
-  "hardhat/=node_modules/hardhat/",
 ]
+
 
 [rpc_endpoints]
 anvil   = "http://127.0.0.1:8545"
