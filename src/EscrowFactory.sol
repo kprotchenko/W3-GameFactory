@@ -20,7 +20,7 @@ contract EscrowFactory is Ownable, ReentrancyGuard, Pausable {
         feeRecipient = _feeRecipient;
         feePercent = 1;
     }
-    // function setFeeRecipient(address payable r) external onlyOwner { require(r != address(0)); feeRecipient = r; }
+    function setFeeRecipient(address payable r) external onlyOwner { require(r != address(0)); feeRecipient = r; }
 
     // Returns the address of the newly deployed contract
     // F-2 deploys a new SimpleEscrow with CREATE2 and emits EscrowCreated(escrowAddress).
@@ -102,10 +102,10 @@ contract EscrowFactory is Ownable, ReentrancyGuard, Pausable {
 
     // F-5 Owner can pause() and unpause() deployments (use Pausable).
     // Todo: F-5 Owner can pause() and unpause() deployments (use Pausable). Still the work in progress
-    function pause() external {
+    function pause() external onlyOwner {
         _pause();
     }
-    function unpause() external {
+    function unpause() external onlyOwner {
         _unpause();
     }
 

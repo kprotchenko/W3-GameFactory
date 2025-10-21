@@ -12,6 +12,7 @@ contract SimpleEscrow is ReentrancyGuard {
     address payable public immutable payee;
     uint immutable public deadline;
     uint immutable public feePercent;
+    // uint256 private deposited;
     bool private fundedAlready;
     bool private releasedAlready;
 
@@ -32,6 +33,7 @@ contract SimpleEscrow is ReentrancyGuard {
         require(depositor == msg.sender, "Only depositor can call this function.");
         require(!fundedAlready, "Function can only be called once");
         fundedAlready = true;
+        // deposited = msg.value;
         emit Funded(msg.value);
     }
 
@@ -73,16 +75,21 @@ contract SimpleEscrow is ReentrancyGuard {
         // Checks
         require(fundedAlready, "The contruct is not funded yet");
         require(block.timestamp <= deadline, "expired");
-        require(amount <= address(this).balance, "insufficient funds");
+        require(amount <= address(this).balance, "insufficient funds on balance");
+        // require(amount <= deposited, "insufficient fund deposited");   // or address(this).balance
+        
         bool isSignedByDepositor = verify(amount, _sig);
         require(isSignedByDepositor, "Signature is invalid");
 
+
         // Effects
+        // deposited -= amount;
         uint256 fee = (amount*feePercent)/100;
         uint256 amountAfterFee = amount - fee;
 
         // Interactions
         (bool success_for_payee, ) = payee.call{value: amountAfterFee}(""); require(success_for_payee, "payee did not get the funds");
+
         (bool success_for_factory, ) = factory.feeRecipient().call{value: fee}(""); require(success_for_factory, "factory did not get the funds");
         releasedAlready = true;
         emit Released(payee, amountAfterFee);
