@@ -1,9 +1,17 @@
 # solidity-sol71-Kyrylo
 # Deterministic Escrow Suite
-Following variables need to be defined in .env file locally to run script/EscrowFactory.s.sol (I provided examples values from Anvil but you are welcome to change them).
+
 
 *****************************************************************************************************
 ```
+# Folowing dependencies needed for project to be deployed locally. Run the comand below in terminal
+
+forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-git
+```
+*****************************************************************************************************
+```
+# Following variables need to be defined in .env file locally to run script/EscrowFactory.s.sol (I provided examples values from Anvil but you are welcome to change them).
+
 PK_FOR_ANVIL=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 FEE_RECIPIENT_ADDR_ANVIL=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 DEPOSITOR=0xa0Ee7A142d267C1f36714E4a8F75612F20a79720
@@ -16,7 +24,8 @@ SALT=888
 *****************************************************************************************************
 
 ```
-#The following commands have to be executed to deploy locally the EscrowFactory contract.
+# The following commands have to be executed to deploy locally the EscrowFactory contract.
+
 anvil
 set -a; source .env; set +a
 forge clean && forge build
@@ -27,7 +36,7 @@ forge script script/EscrowFactory.s.sol:EscrowFactoryScript \
 ```
 *****************************************************************************************************
 ```
-#For testing the following commands have to be executed as well
+# For testing the following commands have to be executed as well
 forge test --match-path test/EscrowFactory.t.sol -vvvvv
 forge test --match-path test/SimpleEscrow.t.sol -vvvvv
 ```
