@@ -16,23 +16,22 @@ contract CommunityToken is ERC20, ERC20Pausable, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // CT-2: Constructor (string name, string symbol, address admin) grants DEFAULT_ADMIN_ROLE and PAUSER_ROLE to admin
-
     constructor(string memory name, string memory symbol, address admin) ERC20(name, symbol) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(PAUSER_ROLE, admin);
     }
 
-    function grantMinteRole(address minter) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function grantMinteRole(address minter) external onlyRole(DEFAULT_ADMIN_ROLE) {
         grantRole(MINTER_ROLE, minter);
     }
 
-    // CT-4: mint(address to, uint256 amount) — onlyRole(MINTER_ROLE).
-    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+    // Todo: CT-4: mint(address to, uint256 amount) — onlyRole(MINTER_ROLE).
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
         // Todo: need to finish the work on mint(...) function
     }
 
-    // CT-5: burn(uint256 amount) — token holder may burn own balance.
-    function burn(uint256 amount) public {
+    // Todo: CT-5: burn(uint256 amount) — token holder may burn own balance.
+    function burn(uint256 amount) external {
         // Todo: need to finish the work on burn(...) function
     }
 
