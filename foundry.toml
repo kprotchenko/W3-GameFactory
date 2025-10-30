@@ -11,3 +11,15 @@ sepolia = "${SEPOLIA_RPC_URL}"
 
 [etherscan]
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = true
+int_types = "long"                     # long | short | preserve
+quote_style = "double"                 # double | single | preserve
+number_underscore = "thousands"        # preserve | thousands | remove
+hex_underscore = "bytes"               # preserve | remove | bytes
+wrap_comments = true
+multiline_func_header = "attributes_first"  # attributes_first | params_first | all
+single_line_statement_blocks = "preserve"   # single | multi | preserve

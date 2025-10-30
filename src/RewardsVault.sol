@@ -4,13 +4,14 @@ pragma solidity ^0.8.30;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {CommunityToken} from "../src/CommunityToken.sol";
+import { CommunityToken } from "../src/CommunityToken.sol";
 
 // RV-1: Inherit AccessControl, Pausable, ReentrancyGuard.
 contract RewardsVault is AccessControl, Pausable, ReentrancyGuard {
     //: RV-3: Define role constants:
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant TREASURER_ROLE = keccak256("TREASURER_ROLE");
+    bytes32 public constant AUDITOR_ROLE = PAUSER_ROLE;
 
     // RV-4: Public constants
     uint256 public constant RATE = 100; //1e18 / 0.01 ether == 1e18/(1e16 wei) == 1e2 == 100;
@@ -32,21 +33,19 @@ contract RewardsVault is AccessControl, Pausable, ReentrancyGuard {
         token = _token;
     }
 
-    bytes32 public constant AUDITOR_ROLE = PAUSER_ROLE;
-
-    // RV-5: donate() payable nonReentrant → mints msg.value * RATE / 1e18 tokens to sender; emits Donation(sender, value).
-    function donate() external payable nonReentrant {
-        uint256 ammount = msg.value * RATE; // Might need to ask requriments
-        token.mint(msg.sender, ammount); // 1 token per 0.01 ETH is essentialy 100 token bassed units per 1 wei (asuming each token is 1e18 token bassed units)
+    // RV-5: donate() payable nonReentrant → mints msg.value * RATE / 1e18 tokens to sender; emits Donation(sender,
+    // value).
+    function donate() external payable nonReentrant whenNotPaused {
+        uint256 amount = msg.value * RATE; // Might need to ask requriments
+        token.mint(msg.sender, amount); // 1 token per 0.01 ETH is essentialy 100 token bassed units per 1 wei (asuming
+            // each token is 1e18 token bassed units)
         emit Donation(msg.sender, msg.value);
     }
 
-    // RV-6: withdraw(uint256 amount) — onlyRole(TREASURER_ROLE) nonReentrant; sends ETH to foundationWallet; emits Withdrawal(amount).
-    error NotEnoughBalanceForWithdrowallAmount();
-
-    function withdraw(uint256 amount) external onlyRole(TREASURER_ROLE) nonReentrant {
+    // RV-6: withdraw(uint256 amount) — onlyRole(TREASURER_ROLE) nonReentrant; sends ETH to foundationWallet; emits
+    function withdraw(uint256 amount) external onlyRole(TREASURER_ROLE) nonReentrant whenNotPaused {
         require(amount <= address(this).balance, "low balance");
-        (bool success_for_withdraw,) = foundationWallet.call{value: amount}("");
+        (bool success_for_withdraw,) = foundationWallet.call{ value: amount }("");
         require(success_for_withdraw, "withdraw transfer failed");
         emit Withdrawal(amount);
     }
@@ -61,12 +60,21 @@ contract RewardsVault is AccessControl, Pausable, ReentrancyGuard {
         foundationWallet = _foundationWallet;
     }
 
+    /**
+     * @dev Modifier that checks that an account has either of the two specified roles. Reverts
+     * with an {AccessControlUnauthorizedAccount} error including the required role.
+     */
+    modifier onlyRoles(bytes32 role1, bytes32 role2) {
+        require(hasRole(role1, msg.sender) || hasRole(role2, msg.sender), "AccessControl: missing required role");
+        _;
+    }
+
     // RV-8: pause() / unpause() — onlyRole(PAUSER_ROLE) (or AUDITOR_ROLE).
-    function pause() external onlyRole(PAUSER_ROLE) onlyRole(AUDITOR_ROLE) {
+    function pause() external onlyRoles(PAUSER_ROLE, AUDITOR_ROLE) {
         _pause();
     }
 
-    function unpause() external onlyRole(PAUSER_ROLE) onlyRole(AUDITOR_ROLE) {
+    function unpause() external onlyRoles(PAUSER_ROLE, AUDITOR_ROLE) {
         _unpause();
     }
 
