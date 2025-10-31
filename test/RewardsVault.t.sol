@@ -80,6 +80,7 @@ contract RewardsVaultTest is Test {
         rewardsVault.withdraw(1 wei);
         assertEq(foundationWallet.balance, 1 wei);
     }
+
     function testWithdrawWithoutTheRightAccess() public {
         vm.deal(address(rewardsVault), 1 wei);
         vm.expectRevert(
@@ -101,6 +102,7 @@ contract RewardsVaultTest is Test {
         vm.prank(donor); // next call is from donation (has to be right next to function call)
         rewardsVault.donate{ value: 1 wei }();
     }
+
     function testWithdrawWithTheRightAccessOnPause() public {
         vm.deal(address(rewardsVault), 1 wei);
         vm.prank(pauser);
