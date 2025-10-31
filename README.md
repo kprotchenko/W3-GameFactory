@@ -4,8 +4,6 @@
 You will create a two-contract system that turns Ether donations into reward tokens and secures every action with OpenZeppelin AccessControl.
 https://app.metana.io/lessons/%f0%9f%93%91-assignments-m3-5/
 
-# Module 3 Assignment – Donation Contract & Unit Tests
-
 ## Function Requirements
 
 - **`withdraw(uint256 amount)`**
