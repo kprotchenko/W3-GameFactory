@@ -94,7 +94,7 @@ cast send $COMMUNITY_VAULT_FACTORY \
 ```
 # For testing the following commands have to be executed as well
 
-forge test --match-path test/RewardsVaul.t.sol -vvvvv
+forge test --match-path test/RewardsVault.t.sol -vvvvv
 ```
 
 
