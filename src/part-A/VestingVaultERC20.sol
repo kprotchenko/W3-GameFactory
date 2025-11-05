@@ -47,6 +47,7 @@ contract VestingVault is ReentrancyGuard, AccessControl {
     // A-3: stores schedule struct (mapping by ID).
     // I added nonReentrant just inn case so as to eliminate scenario where admin
     error CliffMustBeInThePastOrNowToCreateNew();
+
     function createSchedule(address beneficiary, uint64 cliff, uint64 duration, uint256 amountVested)
         external
         nonReentrant
@@ -72,10 +73,11 @@ contract VestingVault is ReentrancyGuard, AccessControl {
     error OnlyBeneficiaryCanClaim();
     error CliffMustBeInThePastOrNowToClaim();
     error TheFundsAlreadyReleased();
+
     function claim(uint256 scheduleId) external nonReentrant {
         VestingSchedule schedule = vestingSchedules[scheduleId];
         // Checks
-        require(schedule.beneficiary == msg.sender,  OnlyBeneficiaryCanClaim());
+        require(schedule.beneficiary == msg.sender, OnlyBeneficiaryCanClaim());
         require(schedule.cliff <= block.timestamp, CliffMustBeInThePastOrNowToClaim());
         require(schedule.releasedAmount < schedule.amountVested, TheFundsAlreadyReleased());
         // Effects
