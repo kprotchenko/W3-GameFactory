@@ -21,4 +21,8 @@ contract VestingToken is ERC20, ERC20Burnable, AccessControl {
         address _vestingVaultDeploymentAddress = address(new VestingVault(address(this), admin));
         grantRole(MINTER_ROLE, _vestingVaultDeploymentAddress);
     }
+
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
 }
