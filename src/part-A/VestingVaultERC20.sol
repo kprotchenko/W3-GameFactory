@@ -35,14 +35,7 @@ contract VestingVault is ReentrancyGuard, AccessControl {
         uint256 scheduleId, address beneficiary, uint64 cliff, uint64 duration, uint256 amountVested
     );
 
-    event Claimed(
-        uint256 scheduleId,
-        address beneficiary,
-        uint64 cliff,
-        uint64 duration,
-        uint256 amountVested,
-        uint256 amountClaimed
-    );
+    event Claimed(address beneficiary, uint64 cliff, uint64 duration, uint256 amountVested, uint256 amountClaimed);
 
     // A-2.2: Constructor takes token address and admin.
     constructor(address token, address admin) {
@@ -83,15 +76,21 @@ contract VestingVault is ReentrancyGuard, AccessControl {
         require(schedule.releasedAmount < schedule.amountVested, "All the funds are already released");
         // Effects
         uint64 timePassed;
+        uint64 endDate;
         unchecked {
-            uint64 endDate = schedule.cliff + schedule.duration;
-            if (endDate >= block.timestamp) {
+            endDate = schedule.cliff + schedule.duration;
+            if (endDate > block.timestamp) {
                 timePassed = block.timestamp - schedule.cliff;
             } else {
                 timePassed = schedule.duration;
             }
         }
-        uint256 releasedAmountNew = timePassed * schedule.amountVested / schedule.duration;
+        uint256 releasedAmountNew;
+        if (endDate > block.timestamp) {
+            releasedAmountNew = timePassed * schedule.amountVested / schedule.duration;
+        } else {
+            releasedAmountNew = schedule.amountVested;
+        }
         uint256 amountClaimed;
         unchecked {
             amountClaimed = releasedAmountNew - schedule.releasedAmount;
