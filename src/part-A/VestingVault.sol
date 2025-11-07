@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.30;
 
-import "./VestingTokenERC20.sol";
+import "./VestingToken.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -34,8 +34,14 @@ contract VestingVault is ReentrancyGuard, AccessControl {
     event VestingScheduleCreated(
         uint256 scheduleId, address beneficiary, uint64 cliff, uint64 duration, uint256 amountVested
     );
-
-    event Claimed(uint256 scheduleId, address beneficiary, uint64 cliff, uint64 duration, uint256 amountVested, uint256 amountClaimed);
+    event Claimed(
+        uint256 scheduleId,
+        address beneficiary,
+        uint64 cliff,
+        uint64 duration,
+        uint256 amountVested,
+        uint256 amountClaimed
+    );
 
     // A-2.2: Constructor takes token address and admin.
     constructor(address token, address admin) {
@@ -75,11 +81,14 @@ contract VestingVault is ReentrancyGuard, AccessControl {
     error TheFundsAlreadyReleased();
 
     function claim(uint256 scheduleId) external nonReentrant {
-//        VestingSchedule schedule = vestingSchedules[scheduleId];
+        //        VestingSchedule schedule = vestingSchedules[scheduleId];
         // Checks
         require(vestingSchedules[scheduleId].beneficiary == msg.sender, OnlyBeneficiaryCanClaim());
         require(vestingSchedules[scheduleId].cliff <= block.timestamp, CliffMustBeInThePastOrNowToClaim());
-        require(vestingSchedules[scheduleId].releasedAmount < vestingSchedules[scheduleId].amountVested, TheFundsAlreadyReleased());
+        require(
+            vestingSchedules[scheduleId].releasedAmount < vestingSchedules[scheduleId].amountVested,
+            TheFundsAlreadyReleased()
+        );
         // Effects
         uint64 timePassed;
         uint64 endDate;
@@ -93,7 +102,8 @@ contract VestingVault is ReentrancyGuard, AccessControl {
         }
         uint256 releasedAmountNew;
         if (endDate > uint64(block.timestamp)) {
-            releasedAmountNew = timePassed * vestingSchedules[scheduleId].amountVested / vestingSchedules[scheduleId].duration;
+            releasedAmountNew =
+                timePassed * vestingSchedules[scheduleId].amountVested / vestingSchedules[scheduleId].duration;
         } else {
             releasedAmountNew = vestingSchedules[scheduleId].amountVested;
         }
@@ -107,7 +117,12 @@ contract VestingVault is ReentrancyGuard, AccessControl {
         vestingToken.mint(msg.sender, amountClaimed);
 
         emit Claimed(
-            scheduleId, vestingSchedules[scheduleId].beneficiary, vestingSchedules[scheduleId].cliff, vestingSchedules[scheduleId].duration, vestingSchedules[scheduleId].amountVested, amountClaimed
+            scheduleId,
+            vestingSchedules[scheduleId].beneficiary,
+            vestingSchedules[scheduleId].cliff,
+            vestingSchedules[scheduleId].duration,
+            vestingSchedules[scheduleId].amountVested,
+            amountClaimed
         );
     }
 

@@ -1,8 +1,37 @@
 # solidity-sol71-Kyrylo
+# [Module 4](https://app.metana.io/lessons/%f0%9f%93%91-assignments-m4-5/)
+## Part A – ERC-20 VestingToken and VestingVault
+You ship two contracts that cooperate:
+1. **`VestingToken`** is a standard fungible token. It does nothing special on its own.
+2. **`VestingVault`** is the brain.
+   - The admin loads token amounts into time-locked “schedules” for any beneficiary.`**
+   - Until a schedule’s cliff passes, the beneficiary can claim nothing.`**
+   - After that, tokens unlock linearly (or all at once, depending on how you code the formula) until the schedule’s end date.`**
+   - The beneficiary calls claim whenever they like; the vault mints the exact vested amount and transfers it to them.`**
+   - No one can drain tokens early, and the vault never pushes tokens—users must pull.`**
 
-# Module 3: Role-Based Rewards Pool
-You will create a two-contract system that turns Ether donations into reward tokens and secures every action with OpenZeppelin AccessControl.
-https://app.metana.io/lessons/%f0%9f%93%91-assignments-m3-5/
+## Part B – ERC-721 MetaverseItem NFT collection 🎮
+You deliver a single NFT contract:
+
+   - It can mint up to 10 000 unique tokens, each identified by an incrementing ID.
+   - The contract stores one IPFS base URI (e.g., ipfs://bafy…/).
+     - tokenURI(42) returns ipfs://bafy…/42.json.
+   - A default 5 % royalty is embedded with ERC-2981, so any marketplace that reads the standard will route 5 % of every secondary sale back to the creator address.
+   - Only addresses holding the MINTER_ROLE can mint; everyone else must buy or receive tokens off-chain.
+
+A working deployment lets you change the base URI once, mint NFTs up to the cap, and see correct URIs and royalty info in tests.
+
+## Part C – ERC-1155 LootCrate1155 📦
+You deliver a single LootCrate1155 contract. This single contract behaves like a video-game loot-crate shop:
+
+   - Token IDs 1 and 2 are fungible “Sword” and “Shield” items (supply-capped).
+   - IDs 3 and higher represent one-of-one cosmetic NFTs.
+   - Any user calls openCrate, pays 0.02 ETH per crate, and receives a pseudorandom assortment of items—typically some swords/shields and, with lower probability, a cosmetic NFT.
+   - Because the contract is ERC-1155, all items are minted in one cheap batch.
+   - An authorised account holding **PAUSER_ROLE** can halt crate openings instantly (and resume later).
+   - An authorised airdropper with **MINTER_ROLE** can mint batches straight to players without payment when needed.
+
+A correct solution mints the right mix when crates are opened, rejects under-payment, and blocks all minting while paused.
 
 ## Function Requirements
 
@@ -26,15 +55,16 @@ https://app.metana.io/lessons/%f0%9f%93%91-assignments-m3-5/
 
 ## Unit‑Testing Requirements
 
-- Use **Hardhat** or **Foundry** for writing tests.
-- Provide at least **three tests**:
-    - Verify that `donate` mints the correct token amount and emits a **`Donation`** event.
-    - Ensure `withdraw` works for `TREASURER_ROLE` and reverts for other roles.
-    - Confirm that when `pause()` is active, both `donate` and `withdraw` revert.
-
+- Use **Foundry** for writing tests.
+- Part-A
+    - Schedule releases correct amounts over time (use warp) 
+    - Non-admin cannot create schedules
+- Part-B
+    - mint increments id & respects captokenURI 
+    - returns expected IPFS link
+- Part-C
+    - openCrate reverts with wrong ETH pause blocks openCrate
 - You may add additional tests, such as:
-    - Testing the pause/unpause cycle.
-    - Burn scenarios or other edge cases.
 
 *****************************************************************************************************
 ```
@@ -42,28 +72,22 @@ https://app.metana.io/lessons/%f0%9f%93%91-assignments-m3-5/
 # Run the comand below in terminal:
 
 forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-git
+forge install foundry-rs/forge-std --no-git
 ```
 *****************************************************************************************************
 ```
-# Following variables need to be defined in .env file locally to run script/CommunityToken.s.sol
+# Following variables need to be defined in .env file locally to run script/part-A/VestingTokenAndVault.s.sol
 # I provided examples values from Anvil but you are welcome to change them.
 
 
 PK_FOR_ANVIL=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-COMMUNITY=0xa0Ee7A142d267C1f36714E4a8F75612F20a79720
-COMMUNITY_PK=0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
+TOKEN_ADMIN=0xa0Ee7A142d267C1f36714E4a8F75612F20a79720
+TOKEN_ADMIN_PK=0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
 VAULT_ADMIN=0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f
 VAULT_ADMIN_PK=0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97
-FOUNDATION_WALLET=0x14dC79964da2C08b23698B3D3cc7Ca32193d9955
-FOUNDATION_WALLET_PK=0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356
-DONOR=0x976EA74026E726554dB657fA54763abd0C3a0aa9
-DONOR_PK=0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e
-TREASURER=0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc
-TREASURER_PK=0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
-PAUSER=0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65
-PAUSEER_PK=0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
-AUDITOR=0x90F79bf6EB2c4f870365E785982E1f101E93b906
-AUDITOR_PK=0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
+BENEFICIARY=0x14dC79964da2C08b23698B3D3cc7Ca32193d9955
+BENEFICIARY_PK=0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356
+BLOCK_TIME=1762461462
 ```
 *****************************************************************************************************
 
@@ -75,26 +99,14 @@ set -a; source .env; set +a
 forge clean && forge build
 
 #Local:
-forge script script/CommunityToken.s.sol:CommunityTokenScript \
+forge script script/part-A/VestingTokenAndVault.s.sol:VestingTokenAndVaultScript \
   --rpc-url anvil --private-key $PK_FOR_ANVIL --broadcast -vvvv
 ```
 *****************************************************************************************************
 ```
-# CommunityToken.sol was made a factory for RewardsVault
-# After you know the address of the deployed contract, save it and call createRewardsVault function 
-# to deploy RewardsVault.sol as well.
+# For testing the following command has to be executed as well
 
-cast send $COMMUNITY_VAULT_FACTORY \
-"createRewardsVault(address,address)(address)" $VAULT_ADMIN $FOUNDATION_WALLET \
---rpc-url anvil \
---private-key $COMMUNITY_PK
-```
-
-*****************************************************************************************************
-```
-# For testing the following commands have to be executed as well
-
-forge test --match-path test/RewardsVault.t.sol -vvvvv
+forge test --match-path test/part-A/VestingVault.t.sol -vvvvv
 ```
 
 
