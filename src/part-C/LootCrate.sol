@@ -34,10 +34,11 @@ contract LootCrate is ERC1155, Pausable, AccessControl {
     // Todo: C-3: openCrate(uint count) payable
     //    // mints random mix of IDs 1–3 based on keccak256(msg.sender, block.timestamp).
     //    // Price: 0.02 ETH each.
-    error PaymentAmountIsWrong();
+    error WrongAmountWasPayed(uint256 expected, uint256 got);
+
 
     function openCrate(uint256 count) external payable {
-        if (msg.value != 0.02 ether) revert PaymentAmountIsWrong();
+        if (msg.value != price) revert WrongAmountWasPayed(price, msg.value);
         bytes32 seedForSwardsInCrate = keccak256(abi.encodePacked(msg.sender, block.timestamp));
 
         uint256 swardsInCrate = uint256(seedForSwardsInCrate) % 96; // 0–95
