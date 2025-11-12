@@ -16,7 +16,7 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     uint16 public constant MAX_SUPPLY = 10_000;
     uint256 private _nextTokenId;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    string public baseURI;
+    string internal baseURI;
 
     event MintedMetaverseItemNFT(uint256 tokenId, string tokenURI, address creator, address to);
 
@@ -46,7 +46,8 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     }
 
     // B-4: setBaseURI(string) – only admin; stores IPFS base (e.g., ipfs://CID/).
-    // Todo: Changing base URI is not a good idea as it would break tokenURI(uint256 tokenId) function
+    // Todo: Changing base URI is not a good idea as it would break tokenURI(uint256 tokenId) function (unless all the
+    // data is migrated to the new URI)
     function setBaseURI(string memory _baseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = _baseURI;
     }
@@ -57,11 +58,12 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     }
 
     // B-5.2: tokenURI = baseURI + tokenId + “.json”.
-    // Todo: Changing base URI is not a good idea as doing so would break this method
+    // Todo: Changing base URI is not a good idea as doing so would break this method (unless everything on IPFS has
+    // been migrated as well).
     function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory) {
         _requireOwned(tokenId);
-        string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString(), ".json") : "";
+        string memory base = _baseURI();
+        return bytes(base).length > 0 ? string.concat(base, tokenId.toString(), ".json") : "";
     }
 
     function _increaseBalance(address account, uint128 amount) internal override(ERC721, ERC721Enumerable) {

@@ -60,7 +60,8 @@ contract VestingVault is ReentrancyGuard, AccessControl {
         onlyRole(DEFAULT_ADMIN_ROLE)
         returns (uint256)
     {
-        require(cliff >= block.timestamp, CliffMustBeInThePastOrNowToCreateNew());
+        if (cliff < block.timestamp) revert CliffMustBeInThePastOrNowToCreateNew();
+
         uint256 scheduleId;
         unchecked {
             scheduleId = ++_nextScheduleId;
@@ -81,14 +82,12 @@ contract VestingVault is ReentrancyGuard, AccessControl {
     error TheFundsAlreadyReleased();
 
     function claim(uint256 scheduleId) external nonReentrant {
-        //        VestingSchedule schedule = vestingSchedules[scheduleId];
         // Checks
-        require(vestingSchedules[scheduleId].beneficiary == msg.sender, OnlyBeneficiaryCanClaim());
-        require(vestingSchedules[scheduleId].cliff <= block.timestamp, CliffMustBeInThePastOrNowToClaim());
-        require(
-            vestingSchedules[scheduleId].releasedAmount < vestingSchedules[scheduleId].amountVested,
-            TheFundsAlreadyReleased()
-        );
+        if (vestingSchedules[scheduleId].beneficiary != msg.sender) revert OnlyBeneficiaryCanClaim();
+        if (vestingSchedules[scheduleId].cliff > block.timestamp) revert CliffMustBeInThePastOrNowToClaim();
+        if (vestingSchedules[scheduleId].releasedAmount == vestingSchedules[scheduleId].amountVested) {
+            revert TheFundsAlreadyReleased();
+        }
         // Effects
         uint64 timePassed;
         uint64 endDate;
