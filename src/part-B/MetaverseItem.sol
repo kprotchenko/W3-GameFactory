@@ -35,8 +35,12 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     }
 
     // B-3: mint(address to) – only minter; tokenId auto-increments; max supply = 10 000.
+    error MaxSupplyMinted();
+    error MaxSupplyOverminted();
     function mint(address to) external onlyRole(MINTER_ROLE) {
         require(totalSupply() < MAX_SUPPLY, "Max supply reached");
+        if(totalSupply() == MAX_SUPPLY) revert MaxSupplyMinted();
+        if(totalSupply() > MAX_SUPPLY) revert MaxSupplyOverminted();
         _safeMint(to, ++_nextTokenId);
         //_feeDenominator default value is matching MAX_SUPPLY of 10_000 so there is no need to specify
         _setTokenRoyalty(_nextTokenId, msg.sender, royalty);
@@ -44,7 +48,7 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     }
 
     // B-4: setBaseURI(string) – only admin; stores IPFS base (e.g., ipfs://CID/).
-    // Todo: Changing base URI is not a good idea as it would break tokenURI(uint256 tokenId) function (unless all the
+    // Changing base URI is not a good idea as it would break tokenURI(uint256 tokenId) function (unless all the
     // data is migrated to the new URI)
     function setBaseURI(string memory uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = uri;
@@ -56,7 +60,7 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     }
 
     // B-5.2: tokenURI = baseURI + tokenId + “.json”.
-    // Todo: Changing base URI is not a good idea as doing so would break this method (unless everything on IPFS has
+    // Changing base URI is not a good idea as doing so would break this method (unless everything on IPFS has
     // been migrated as well).
     function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory) {
         _requireOwned(tokenId);

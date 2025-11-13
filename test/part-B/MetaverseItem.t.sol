@@ -45,7 +45,5 @@ contract MetaverseItemTest is Test {
         emit MintedMetaverseItemNFT(secondTokenId, expectedSecondURILinkIPFS, itemMinter, itemGetter);
         metaverseItem.mint(itemGetter);
         vm.stopPrank();
-        // Todo: finish testing for MAX_SUPPLY (might need to see how I can generate 10_000 tokens quickly
-        // Todo: Also test MAX_SUPPLY after burning (tokenId would be at 10_001 but still no errors)
     }
 }
