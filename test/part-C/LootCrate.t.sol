@@ -29,7 +29,7 @@ contract LootCrateTest is Test {
 
     function testHappyPathOpenCrate() public {
         uint256 count = 3;
-        uint256 payment = crate.price()*count;
+        uint256 payment = crate.price() * count;
         vm.deal(crateGetter, payment);
         vm.startPrank(crateGetter);
         vm.expectEmit();
@@ -40,17 +40,14 @@ contract LootCrateTest is Test {
 
     function testWrongPaymentAmountOpenCrate() public {
         uint256 count = 3;
-        uint256 expected = crate.price()*count;
-        uint256 got = crate.price()*(count + 1);
+        uint256 expected = crate.price() * count;
+        uint256 got = crate.price() * (count + 1);
         vm.deal(crateGetter, got);
         vm.startPrank(crateGetter);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                LootCrate.WrongAmountWasPayed.selector,
-                crate.price(), count, expected, got
-            )
+            abi.encodeWithSelector(LootCrate.WrongAmountWasPayed.selector, crate.price(), count, expected, got)
         );
-        crate.openCrate{value: got}(count);
+        crate.openCrate{ value: got }(count);
         vm.stopPrank();
     }
 
@@ -61,7 +58,7 @@ contract LootCrateTest is Test {
         crate.pause();
         vm.stopPrank();
         uint256 count = 3;
-        uint256 payment = crate.price()*count;
+        uint256 payment = crate.price() * count;
         vm.deal(crateGetter, payment);
         vm.startPrank(crateGetter);
         vm.expectRevert(bytes("EnforcedPause()"));

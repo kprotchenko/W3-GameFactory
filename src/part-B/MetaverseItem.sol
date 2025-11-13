@@ -21,9 +21,7 @@ contract MetaverseItem is ERC721, ERC721Royalty, ERC721Enumerable, AccessControl
     event MintedMetaverseItemNFT(uint256 tokenId, string tokenURI, address creator, address to);
 
     // B-2: Constructor (name, symbol, baseURI, admin) sets default 5 % royalty and grants MINTER_ROLE to admin.
-    constructor(string memory name_, string memory symbol_, string memory uri, address _admin)
-        ERC721(name_, symbol_)
-    {
+    constructor(string memory name_, string memory symbol_, string memory uri, address _admin) ERC721(name_, symbol_) {
         baseURI = uri;
         admin = _admin;
         royalty = 500;
