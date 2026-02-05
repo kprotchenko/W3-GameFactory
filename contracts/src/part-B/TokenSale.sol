@@ -3,7 +3,7 @@ pragma solidity ^0.8.30;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { Address } from "../../lib/openzeppelin-contracts/contracts/utils/Address.sol";
-import "./part-A/CappedToken.sol";
+import { CappedToken } from "../part-A/CappedToken.sol";
 
 contract TokenSale is Ownable2Step {
     CappedToken public cappedToken;
@@ -24,7 +24,7 @@ contract TokenSale is Ownable2Step {
     can buy tokens at 0.001 ETH each and sell them back at 0.0005 ETH per token.
      *
      */
-    constructor(Address _cappedToken, Address _owner, uint256 _sellPrice, uint256 _buyPrice) Ownable2Step(_owner) {
+    constructor(address _cappedToken, address _owner, uint256 _sellPrice, uint256 _buyPrice) Ownable(_owner) {
         cappedToken = CappedToken(_cappedToken);
         sellPrice = _sellPrice;
         buyPrice = _buyPrice;
@@ -41,12 +41,12 @@ contract TokenSale is Ownable2Step {
     error WithdrawFundsFailed();
 
     function withdrawFunds() external onlyOwner {
-        (bool success,) = _owner.call{ value: address(this).balance }("");
+        (bool success,) = owner().call{ value: address(this).balance }("");
         if (!success) revert WithdrawFundsFailed();
     }
 
     function withdrawTokens() external onlyOwner {
-        cappedToken.transfer(_owner, tokensInReserve);
+        cappedToken.transfer(owner(), tokensInReserve);
     }
 
     function buy() external payable {
@@ -59,7 +59,7 @@ contract TokenSale is Ownable2Step {
     function _buy() internal {
         // calculate tokensOut
         // use contract reserves first, mint remainder if needed
-        uint256 tokensToAdd = msg.value * 10 ** CappedToken.decimals() / buyPrice;
+        uint256 tokensToAdd = msg.value * 10 ** cappedToken.decimals() / buyPrice;
         if (tokensToAdd == 0) revert PurchaseTooSmall();
         accounts[msg.sender] += tokensToAdd;
         uint256 tokensToMint;
@@ -85,9 +85,9 @@ contract TokenSale is Ownable2Step {
         }
     }
 
-    function buyExactTokens(uint256 tokensOut) internal {
-        uint256 ethRequired = ceil(tokensOut * buyPrice / 1e18);
-    }
+    //    function buyExactTokens(uint256 tokensOut) internal {
+    //        uint256 ethRequired = sell(tokensOut * buyPrice / 1e18);
+    //    }
 
     function sell() external { }
 }

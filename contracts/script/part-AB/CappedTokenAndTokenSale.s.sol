@@ -30,7 +30,7 @@ contract CappedTokenAndTokenSale is Script {
             revert("unsupported chain");
         }
         vm.startBroadcast(pk);
-        token = new CappedToken("CappedToken", "CT", tokenAdmin);
+        token = new CappedToken("CappedToken", "CT", tokenAdmin, 10_000);
         tokenSale = new TokenSale(address(token), tokenSaleOwner, 0.001 ether, 0.0005 ether);
         vm.stopBroadcast();
         vm.startBroadcast(tpk);

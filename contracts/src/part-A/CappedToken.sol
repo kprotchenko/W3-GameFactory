@@ -12,9 +12,8 @@ contract CappedToken is ERC20, AccessControlDefaultAdminRules {
 
     // A-1.2: Constructor (name, symbol, admin) mints 100 M tokens to admin and grants MINTER_ROLE to a separate
     // VestingVault.
-    constructor(string memory name, string memory symbol, address admin, uint256 _maxTokenSupply) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, address admin, uint256 _maxTokenSupply) ERC20(name, symbol) AccessControlDefaultAdminRules (3 days, admin){
         maxSupply = _maxTokenSupply * 10 ** decimals();
-        _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
@@ -23,10 +22,10 @@ contract CappedToken is ERC20, AccessControlDefaultAdminRules {
 
     error MaxSupplyOverminted();
 
-    function _update(address from, address to, uint256 value) internal override(ERC20) returns (address) {
-        if (from == address(0) && _totalSupply + value > maxSupply) {
+    function _update(address from, address to, uint256 value) internal override(ERC20) {
+        if (from == address(0) && totalSupply() + value > maxSupply) {
             revert MaxSupplyOverminted();
         }
-        return super._update(from, to, value);
+        super._update(from, to, value);
     }
 }
