@@ -63,5 +63,5 @@ Icon?
 .Spotlight-V100
 .Trashes
 .fseventsd
-/contracts/lib/
+#/contracts/lib/
 /frontend/.env
