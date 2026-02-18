@@ -1,4 +1,4 @@
-import 'dotenv/config'
+// import 'dotenv/config'
 import {
     defineChain, createWalletClient, http, publicActions, parseEther, formatUnits, parseEventLogs,
     decodeFunctionData
@@ -12,7 +12,12 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const privateKey = process.env.PK_FOR_ANVIL
+const tokenAddress = process.env.VITE_TOKEN as `0x${string}`
+const tokenSaleAddress = process.env.VITE_TOKEN_SALE as `0x${string}`
+// const tokenAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`
 
+// const tokenAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`
+// export TOKEN=0x5FbDB2315678afecb367f032d93F642f64180aa3
 const anvilChain = defineChain({
     id: 31337,
     name: 'Anvil',
@@ -47,7 +52,7 @@ try {
             }).extend(publicActions);
 
 
-            const tokenAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3' as `0x${string}`
+
 
             const myAddress = account.address // from privateKeyToAccount
 
@@ -61,7 +66,6 @@ try {
 
             // Prepare to write to the contract and get the transaction hash
             console.log('Sending write prep transaction…')
-            const tokenSaleAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as `0x${string}`
 
 
 

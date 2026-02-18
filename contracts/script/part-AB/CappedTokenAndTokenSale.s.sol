@@ -20,7 +20,7 @@ contract CappedTokenAndTokenSale is Script {
             pk = uint256(vm.envBytes32("PK_FOR_ANVIL"));
             tpk = uint256(vm.envBytes32("TOKEN_ADMIN_PK"));
             tokenAdmin = vm.envAddress("TOKEN_ADMIN");
-            tokenSaleOwner = vm.envAddress("VAULT_ADMIN");
+            tokenSaleOwner = vm.envAddress("TOKEN_SALE_OWNER");
         } else if (block.chainid == 11_155_111) {
             // Todo: need to finish deployment to sepolia network
             // pk = uint256(vm.envBytes32("PK_FOR_SEPOLIA"));
