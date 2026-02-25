@@ -46,7 +46,9 @@ contract TokenSale is Ownable2Step {
     }
 
     function withdrawTokens() external onlyOwner {
-        cappedToken.transfer(owner(), tokensInReserve);
+        uint256 amount = tokensInReserve;
+        tokensInReserve = 0;
+        cappedToken.transfer(owner(), amount);
     }
 
     function buy() external payable {
@@ -95,5 +97,39 @@ contract TokenSale is Ownable2Step {
     //        uint256 ethRequired = sell(tokensOut * buyPrice / 1e18);
     //    }
 
-    function sell() external { }
+    // Add these inside TokenSale contract (near your other errors/events)
+    error SellTransferFailed();
+    event Sell(address indexed seller, uint256 tokensIn, uint256 ethOut);
+    function sell(uint256 tokensToSell) external {
+        if (tokensToSell == 0) revert PurchaseTooSmall();
+
+        // token has 18 decimals (ERC20 default), but we use decimals() for correctness
+        uint256 scale = 10 ** uint256(cappedToken.decimals());
+
+        // ethOut = tokensIn * buyBackPrice / 10^decimals
+        uint256 ethOut = (tokensToSell * buyBackPrice) / scale;
+        if (ethOut == 0) revert PurchaseTooSmall();
+        if (address(this).balance < ethOut) revert NotEnoughFunds();
+
+        // Pull tokens from seller (requires prior approve)
+        cappedToken.transferFrom(msg.sender, address(this), tokensToSell);
+
+        // Update reserve and (optionally) your accounting mapping
+        tokensInReserve += tokensToSell;
+
+        uint256 acct = accounts[msg.sender];
+        if (acct >= tokensToSell) {
+            unchecked {
+                accounts[msg.sender] = acct - tokensToSell;
+            }
+        } else {
+            accounts[msg.sender] = 0;
+        }
+
+        // Pay ETH to seller
+        (bool ok, ) = msg.sender.call{value: ethOut}("");
+        if (!ok) revert SellTransferFailed();
+
+        emit Sell(msg.sender, tokensToSell, ethOut);
+    }
 }
