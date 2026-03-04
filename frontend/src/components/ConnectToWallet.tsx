@@ -13,7 +13,7 @@ import tokenArtifact from "../../../contracts/out/CappedToken.sol/CappedToken.js
 import * as React from "react";
 const tokenAddress = import.meta.env.VITE_TOKEN as `0x${string}`
 const tokenSaleAddress = import.meta.env.VITE_TOKEN_SALE as `0x${string}`
-const ANVIL_CHAIN_ID = 31337 as const
+const CHAIN_ID = 31337 as const
 
 function ConnectToWallet(){
     const { address, isConnected } = useConnection()
@@ -44,7 +44,7 @@ function ConnectToWallet(){
         refetch: refetchEthBalance,
     } = useBalance({
         address,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     }) // :contentReference[oaicite:3]{index=3}
 
     // --- ETH (native) balance ---
@@ -53,7 +53,7 @@ function ConnectToWallet(){
         refetch: refetchEthTokenSaleBalance,
     } = useBalance({
         address: tokenSaleAddress,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     }) // :contentReference[oaicite:3]{index=3}
 
     // 1) Read token balance + grab refetch function
@@ -76,7 +76,7 @@ function ConnectToWallet(){
         abi: tokenArtifact.abi,
         functionName: "allowance",
         args: address ? [address, tokenSaleAddress] : undefined,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
         query: { enabled: Boolean(address) },
     });
     const allowance = (allowanceData as bigint | undefined) ?? 0n;
@@ -103,23 +103,23 @@ function ConnectToWallet(){
     // -------------------------
     const buyReceipt = useWaitForTransactionReceipt({
         hash: buyTx.data,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     });
     const approveReceipt = useWaitForTransactionReceipt({
         hash: approveTx.data,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     });
     const sellReceipt = useWaitForTransactionReceipt({
         hash: sellTx.data,
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     });
     const withdrawTokensReceipt = useWaitForTransactionReceipt({
         hash: withdrawTokensTx.data, // wagmi sets this to the tx hash after mutate/mutateAsync
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     });
     const withdrawFundsReceipt = useWaitForTransactionReceipt({
         hash: withdrawFundsTx.data, // wagmi sets this to the tx hash after mutate/mutateAsync
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
     });
 
 
@@ -170,7 +170,7 @@ function ConnectToWallet(){
         address: tokenSaleAddress,
         abi: tokenSaleArtifact.abi,
         functionName: 'owner',
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
         query: { enabled: Boolean(address) },
     })
     const isOwner =
@@ -181,7 +181,7 @@ function ConnectToWallet(){
         address: tokenAddress,
         abi: tokenArtifact.abi,
         functionName: 'maxSupply',
-        chainId: ANVIL_CHAIN_ID,
+        chainId: CHAIN_ID,
         query: { staleTime: Infinity, gcTime: Infinity, refetchOnWindowFocus: false, refetchOnMount: false, refetchOnReconnect: false },
     });
 
@@ -192,7 +192,7 @@ function ConnectToWallet(){
                 abi: tokenSaleArtifact.abi,
                 functionName: "buy",
                 value: parseEther(buyTknForEthAmount),
-                chainId: ANVIL_CHAIN_ID,
+                chainId: CHAIN_ID,
             });
         } catch (e) {
             console.error("buy failed", e);
@@ -209,7 +209,7 @@ function ConnectToWallet(){
                 abi: tokenArtifact.abi,
                 functionName: "approve",
                 args: [tokenSaleAddress, sellTknAmountAdj],
-                chainId: ANVIL_CHAIN_ID,
+                chainId: CHAIN_ID,
             });
         } catch (e) {
             console.error("approve failed", e);
@@ -226,7 +226,7 @@ function ConnectToWallet(){
                 abi: tokenSaleArtifact.abi,
                 functionName: "sell",
                 args: [sellTknAmountAdj],
-                chainId: ANVIL_CHAIN_ID,
+                chainId: CHAIN_ID,
             });
             setSellTknAmount("0");
         } catch (e) {
@@ -240,7 +240,7 @@ function ConnectToWallet(){
                 address: tokenSaleAddress,
                 abi: tokenSaleArtifact.abi,
                 functionName: "withdrawFunds",
-                chainId: ANVIL_CHAIN_ID,
+                chainId: CHAIN_ID,
             });
         } catch (e) {
             console.error("withdrawFunds failed", e);
@@ -253,7 +253,7 @@ function ConnectToWallet(){
                 address: tokenSaleAddress,
                 abi: tokenSaleArtifact.abi,
                 functionName: "withdrawTokens",
-                chainId: ANVIL_CHAIN_ID,
+                chainId: CHAIN_ID,
             });
         } catch (e) {
             console.error("withdrawTokens failed", e);
