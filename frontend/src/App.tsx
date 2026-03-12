@@ -1,7 +1,7 @@
 import './App.css'
 import "bootstrap/dist/css/bootstrap.css";
 
-import ConnectToWallet from "./components/ConnectToWallet.tsx";
+import ConnectToWallet from "./components/ConnectToWallet";
 
 
 function App() {
