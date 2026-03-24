@@ -1,5 +1,8 @@
 pragma solidity ^0.8.30;
 
-contract GameOfChance {
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+
+
+contract GameOfChance is Initializable {
 
 }
