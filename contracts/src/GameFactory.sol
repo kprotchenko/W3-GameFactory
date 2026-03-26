@@ -1,4 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
+
+import {GameOfChance} from "../src/GameOfChance.sol"
 
 contract GameFactory {
     enum LobbyStatus {
@@ -42,7 +45,7 @@ contract GameFactory {
     event FactoryWithdrawal(address indexed user, uint256 amount);
 
     constructor() {
-        implementation = address(new ChanceGame());
+        implementation = address(new GameOfChance());
     }
 
     function createLobby(address invitedOpponent, uint32 joinDuration, uint32 commitDuration, uint32 revealDuration)
@@ -91,7 +94,7 @@ contract GameFactory {
 
         uint256 totalPot = uint256(lobby.stake) + msg.value;
 
-        ChanceGame(payable(game)).initialize{ value: totalPot }(
+        GameOfChance(payable(game)).initialize{ value: totalPot }(
             lobbyId, lobby.creator, msg.sender, lobby.stake, lobby.commitDuration, lobby.revealDuration
         );
 
