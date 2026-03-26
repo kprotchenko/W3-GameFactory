@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
+import "@openzeppelin/contracts/proxy/Clones.sol";
 import {GameOfChance} from "../src/GameOfChance.sol";
 
 contract GameFactory {
