@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {GameOfChance} from "../src/GameOfChance.sol"
+import {GameOfChance} from "../src/GameOfChance.sol";
 
 contract GameFactory {
     enum LobbyStatus {
