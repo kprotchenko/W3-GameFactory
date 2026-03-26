@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import { Script } from "forge-std/Script.sol";
-import { GameFactory } from "../../src/GameFactory.sol";
+import { GameFactory } from "../src/GameFactory.sol";
 
 contract GameOfChanceFactory is Script {
 
